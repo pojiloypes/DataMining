@@ -1,0 +1,13 @@
+url,page,status,records,time
+https://dummyjson.com/posts?limit=20&skip=0,1,200,20,0.56
+https://dummyjson.com/posts?limit=20&skip=20,2,200,20,0.21
+https://dummyjson.com/posts?limit=20&skip=40,3,200,20,0.17
+https://dummyjson.com/users?limit=100&skip=0,1,200,100,0.19
+https://dummyjson.com/users?limit=100&skip=100,2,200,100,0.16
+https://dummyjson.com/users?limit=100&skip=200,3,200,8,0.18
+https://dummyjson.com/users?limit=100&skip=208,4,200,0,0.2
+https://dummyjson.com/comments?limit=100&skip=0,1,200,100,0.19
+https://dummyjson.com/comments?limit=100&skip=100,2,200,100,0.17
+https://dummyjson.com/comments?limit=100&skip=200,3,200,100,0.17
+https://dummyjson.com/comments?limit=100&skip=300,4,200,40,0.13
+https://dummyjson.com/comments?limit=100&skip=340,5,200,0,0.16

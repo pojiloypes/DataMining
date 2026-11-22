@@ -1,0 +1,326 @@
+{
+  "name": "DummyJSON",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "573793d5-b2b4-4cc1-8709-d25147ebfea9",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://dummyjson.com/posts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "skip",
+                    "value": "={{ $pageCount * 20 }}"
+                  }
+                ]
+              },
+              "paginationCompleteWhen": "other",
+              "completeExpression": "={{ $response.statusCode >= 400 || !$response.body.posts?.length || $response.body.skip + $response.body.posts.length >= $response.body.total }}",
+              "limitPagesFetched": true,
+              "maxRequests": 3,
+              "requestInterval": 1000
+            }
+          },
+          "timeout": 20000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f0f83daa-3a73-40b8-b950-bfef85890cc9",
+      "name": "HTTP Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.posts",
+        "options": {
+          "destinationFieldName": "post"
+        }
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        -16
+      ],
+      "id": "62a3cc26-5de4-4e5f-a844-0b55f5d9a526",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2e3a6762-8c81-405b-a77f-79cc2aa91890",
+              "name": "post_id",
+              "value": "={{ $json.post.id }}",
+              "type": "number"
+            },
+            {
+              "id": "bb99b2e5-3a60-47a8-96f8-1bf19939d7cf",
+              "name": "title",
+              "value": "={{ $json.post.title.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "471c6b05-d7e9-4379-af8f-97702841ed1c",
+              "name": "body_preview",
+              "value": "={{ $json.post.body.slice(0, 120) }}",
+              "type": "string"
+            },
+            {
+              "id": "7d835609-64db-4cbd-9eff-f545b813d529",
+              "name": "author_id",
+              "value": "={{ $json.post.userId }}",
+              "type": "number"
+            },
+            {
+              "id": "16566c39-112f-464d-ad6f-7f5f0efd4bb7",
+              "name": "reactions_total",
+              "value": "={{ $json.post.reactions.likes + $json.post.reactions.dislikes }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        992,
+        -16
+      ],
+      "id": "820797e9-de2e-4d9c-9462-897af3279221",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "nocode_result.csv",
+          "headerRow": true
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.2,
+      "position": [
+        1168,
+        -16
+      ],
+      "id": "197b391a-2bd9-4a8d-bd79-dbc5cf4bfeda",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "151f2f68-4d62-49bf-be8e-70ca42c4e4d3",
+              "name": "source",
+              "value": "https://dummyjson.com/posts",
+              "type": "string"
+            },
+            {
+              "id": "722ab1f1-d46a-42b3-8e85-96342360977f",
+              "name": "message",
+              "value": "{{ $json.error?.message || $json.error || $json.body?.message || ('HTTP ' + $json.statusCode) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        800,
+        176
+      ],
+      "id": "68f5ea39-22b3-41a4-9f0b-2185a4032150",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {
+          "fileName": "nocode_error.csv"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        160
+      ],
+      "id": "936e63ee-6dbe-44ce-aedd-ea211e5b6cfd",
+      "name": "Convert to File1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "28f3ffc8-46f9-4a52-916f-6cf06c4c703a",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        528,
+        -16
+      ],
+      "id": "bbff7630-8ed2-4e01-8906-fe69b9c07c66",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Convert to File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e069c168-b814-45f5-8143-ba4400fc5d23",
+  "meta": {
+    "instanceId": "97311f40f4c245a6f677dbaebb7f78a1ede0bf7547715ed1502b957b7570092e"
+  },
+  "nodeGroups": [],
+  "id": "kAoWDT0dNSxQtkkd",
+  "tags": []
+}
